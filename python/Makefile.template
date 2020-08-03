@@ -37,7 +37,7 @@ lint: venv
 	${PYTHON} -m mypy kong-ruler
 
 run: venv
-	${PYTHON} main.py $(project) $(env) $(url)
+	${PYTHON} main.py
 
 install: venv
 	${PYTHON} -m pip install -r requirements.txt
