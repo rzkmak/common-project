@@ -1,0 +1,46 @@
+VENV_NAME?=venv
+VENV_ACTIVATE=. $(VENV_NAME)/bin/activate
+PYTHON=${VENV_NAME}/bin/python3
+
+.PHONY: help test lint run doc install init setup
+
+.DEFAULT: help
+help:
+	@echo "make setup"
+	@echo "       setup development environment, use only once"
+	@echo "make test"
+	@echo "       run tests"
+	@echo "make lint"
+	@echo "       run pylint and mypy"
+	@echo "make install"
+	@echo "       satisfy new dependency added"
+	@echo "make run"
+	@echo "       run project"
+
+setup: init install
+
+init:
+	rm -rf venv
+	python -m venv venv
+
+venv: $(VENV_NAME)/bin/activate
+$(VENV_NAME)/bin/activate: setup.py
+	test -d $(VENV_NAME) || virtualenv -p python3 $(VENV_NAME)
+	${PYTHON} -m pip install -U pip
+	touch $(VENV_NAME)/bin/activate
+
+test: venv
+	${PYTHON} -m pytest -rA
+
+lint: venv
+	${PYTHON} -m pylint kong-ruler
+	${PYTHON} -m mypy kong-ruler
+
+run: venv
+	${PYTHON} main.py $(project) $(env) $(url)
+
+install: venv
+	${PYTHON} -m pip install -r requirements.txt
+
+lock: venv
+	${PYTHON} -m pip freeze --local > requirements.txt
